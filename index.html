@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pace Planner — AppADay 049</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:   #0B1426;
+    --slate:  #1E2D4A;
+    --mid:    #2E4166;
+    --muted:  #7A8BA0;
+    --light:  #E8EDF5;
+    --white:  #F5F8FF;
+    --amber:  #F5A623;
+    --amber2: #E8901A;
+    --green:  #4CAF82;
+    --red:    #E05555;
+    --radius: 12px;
+  }
+
+  html, body {
+    min-height: 100dvh;
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  .site-header {
+    background: var(--slate);
+    border-bottom: 1px solid var(--mid);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .app-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    color: var(--amber);
+    text-transform: uppercase;
+  }
+  .app-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--white);
+  }
+  .back-link {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .2s;
+  }
+  .back-link:hover { color: var(--amber); }
+
+  /* ── LAYOUT ──────────────────────────────────── */
+  .main-wrap {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 0;
+    min-height: calc(100dvh - 53px);
+  }
+  @media (max-width: 800px) {
+    .main-wrap { grid-template-columns: 1fr; }
+  }
+
+  /* ── LEFT PANEL ──────────────────────────────── */
+  .panel-left {
+    background: var(--slate);
+    border-right: 1px solid var(--mid);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+  }
+
+  .panel-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 10px;
+  }
+
+  /* Distance selector */
+  .distance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .dist-btn {
+    background: var(--mid);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 10px 4px;
+    cursor: pointer;
+    transition: all .18s;
+    text-align: center;
+  }
+  .dist-btn:hover { border-color: var(--amber); }
+  .dist-btn.active {
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+  .dist-btn .dist-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    display: block;
+  }
+  .dist-btn.active .dist-label { color: var(--navy); }
+  .dist-btn .dist-sub {
+    font-size: 10px;
+    color: var(--muted);
+    display: block;
+    margin-top: 2px;
+  }
+  .dist-btn.active .dist-sub { color: var(--navy); opacity: .75; }
+
+  /* Inputs */
+  .input-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; overflow: hidden; }
+  .input-group label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .time-inputs { display: flex; gap: 6px; align-items: center; }
+  .time-inputs input {
+    width: 60px;
+    background: var(--mid);
+    border: 1px solid var(--mid);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    padding: 10px 6px;
+    outline: none;
+    transition: border-color .18s;
+  }
+  .time-inputs input:focus { border-color: var(--amber); }
+  .time-sep {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .time-hint { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  input[type="date"] {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    background: var(--mid);
+    border: 1px solid var(--mid);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color .18s;
+    color-scheme: dark;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="date"]:focus { border-color: var(--amber); }
+
+  .week-dates {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .day-date {
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    padding-top: 3px;
+    min-width: 52px;
+  }
+
+  select {
+    width: 100%;
+    background: var(--mid);
+    border: 1px solid var(--mid);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A8BA0' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    transition: border-color .18s;
+  }
+  select:focus { border-color: var(--amber); }
+  select option { background: var(--slate); }
+
+  .generate-btn {
+    background: var(--amber);
+    color: var(--navy);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    padding: 14px;
+    cursor: pointer;
+    transition: background .18s, transform .1s;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .generate-btn:hover { background: var(--amber2); }
+  .generate-btn:active { transform: scale(.98); }
+
+  /* Methodology card */
+  .method-card {
+    background: var(--mid);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    display: none;
+  }
+  .method-card.visible { display: block; }
+  .method-card strong { color: var(--light); display: block; margin-bottom: 4px; }
+
+  /* ── RIGHT PANEL ─────────────────────────────── */
+  .panel-right {
+    padding: 28px 28px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  @media (max-width: 800px) {
+    .panel-right { padding: 20px 16px; }
+  }
+
+  /* Empty state */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    opacity: .5;
+    padding: 60px 20px;
+  }
+  .empty-icon {
+    font-size: 56px;
+    line-height: 1;
+  }
+  .empty-state h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .empty-state p { font-size: 14px; color: var(--muted); max-width: 280px; }
+
+  /* Plan header */
+  .plan-header { display: none; }
+  .plan-header.visible { display: block; }
+  .plan-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: .02em;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .plan-subtitle { font-size: 13px; color: var(--muted); }
+
+  /* Pace key cards */
+  .pace-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .pace-card {
+    background: var(--slate);
+    border: 1px solid var(--mid);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .pace-card-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .pace-card-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .pace-card-unit {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* Mileage chart */
+  .chart-wrap {
+    background: var(--slate);
+    border: 1px solid var(--mid);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: none;
+  }
+  .chart-wrap.visible { display: block; }
+  .chart-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 16px;
+  }
+  .chart-inner { position: relative; height: 120px; }
+  canvas#mileageChart { width: 100%; height: 100%; }
+
+  /* Week accordion */
+  .weeks-wrap { display: none; }
+  .weeks-wrap.visible { display: flex; flex-direction: column; gap: 8px; }
+
+  .week-card {
+    background: var(--slate);
+    border: 1px solid var(--mid);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color .18s;
+  }
+  .week-card.current-week { border-color: var(--amber); }
+
+  .week-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    gap: 12px;
+  }
+  .week-header:hover .week-num { color: var(--amber); }
+
+  .week-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+  .week-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    white-space: nowrap;
+    transition: color .18s;
+    min-width: 64px;
+  }
+  .week-phase {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .week-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .week-miles {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--light);
+    white-space: nowrap;
+  }
+  .week-miles span { font-size: 11px; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 400; }
+
+  .week-chevron {
+    color: var(--muted);
+    font-size: 14px;
+    transition: transform .2s;
+  }
+  .week-card.open .week-chevron { transform: rotate(180deg); }
+
+  /* Mileage bar inside header */
+  .week-bar-wrap {
+    padding: 0 16px 10px;
+    display: none;
+  }
+  .week-card.open .week-bar-wrap { display: block; }
+  .week-bar-track {
+    height: 3px;
+    background: var(--mid);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .week-bar-fill {
+    height: 100%;
+    background: var(--amber);
+    border-radius: 2px;
+    transition: width .4s ease;
+  }
+
+  /* Day list */
+  .week-days {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid var(--mid);
+  }
+  .week-card.open .week-days { display: flex; }
+
+  .day-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--mid);
+  }
+  .day-row:last-child { border-bottom: none; }
+
+  .day-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    min-width: 36px;
+    padding-top: 1px;
+  }
+  .day-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .day-dot.rest    { background: var(--mid); }
+  .day-dot.easy    { background: var(--green); }
+  .day-dot.tempo   { background: var(--amber); }
+  .day-dot.long    { background: #6B8EFF; }
+  .day-dot.interval{ background: var(--red); }
+  .day-dot.cross   { background: #B06EFF; }
+
+  .day-desc { flex: 1; }
+  .day-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--light);
+    margin-bottom: 2px;
+  }
+  .day-detail {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .day-miles {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    white-space: nowrap;
+    padding-top: 1px;
+  }
+  .day-miles.rest-miles { color: var(--muted); font-size: 13px; font-family: 'Inter', sans-serif; }
+
+  /* Taper badge */
+  .taper-badge {
+    display: inline-block;
+    background: rgba(245,166,35,.15);
+    color: var(--amber);
+    border: 1px solid rgba(245,166,35,.3);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    padding: 2px 7px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Print / export note */
+  .plan-footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    padding: 8px 0 24px;
+    display: none;
+  }
+  .plan-footer.visible { display: block; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--mid); border-radius: 3px; }
+
+  @media (max-width: 800px) {
+    .panel-left { border-right: none; border-bottom: 1px solid var(--mid); }
+    .distance-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-left">
+    <span class="app-num">049</span>
+    <span class="app-title">Pace Planner</span>
+  </div>
+  <a href="https://augustineiacopelli.github.io/appaday/" class="back-link">&#8592; Portfolio</a>
+</header>
+
+<div class="main-wrap">
+
+  <!-- LEFT: Inputs -->
+  <aside class="panel-left">
+
+    <div>
+      <div class="panel-section-label">Race Distance</div>
+      <div class="distance-grid">
+        <button class="dist-btn active" data-dist="5k">
+          <span class="dist-label">5K</span>
+          <span class="dist-sub">3.1 mi</span>
+        </button>
+        <button class="dist-btn" data-dist="10k">
+          <span class="dist-label">10K</span>
+          <span class="dist-sub">6.2 mi</span>
+        </button>
+        <button class="dist-btn" data-dist="half">
+          <span class="dist-label">HM</span>
+          <span class="dist-sub">13.1 mi</span>
+        </button>
+        <button class="dist-btn" data-dist="marathon">
+          <span class="dist-label">FM</span>
+          <span class="dist-sub">26.2 mi</span>
+        </button>
+        <button class="dist-btn" data-dist="50k">
+          <span class="dist-label">50K</span>
+          <span class="dist-sub">31.1 mi</span>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-section-label">Goal Finish Time</div>
+      <div class="input-group">
+        <div class="time-inputs">
+          <input type="number" id="hrs" min="0" max="23" placeholder="0" value="0" aria-label="Hours">
+          <span class="time-sep">h</span>
+          <input type="number" id="mins" min="0" max="59" placeholder="25" value="25" aria-label="Minutes">
+          <span class="time-sep">m</span>
+          <input type="number" id="secs" min="0" max="59" placeholder="00" value="0" aria-label="Seconds">
+          <span class="time-sep">s</span>
+        </div>
+        <div class="time-hint" id="goalHint">Goal: 25:00 for a 5K</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-section-label">Current Fitness</div>
+      <div class="input-group">
+        <label for="fitness">How would you describe your current running base?</label>
+        <select id="fitness">
+          <option value="beginner">Beginner — running &lt; 3 months or &lt; 10 mi/week</option>
+          <option value="novice" selected>Novice — running 3–12 months, 10–20 mi/week</option>
+          <option value="intermediate">Intermediate — running 1+ year, 20–35 mi/week</option>
+          <option value="advanced">Advanced — running 2+ years, 35+ mi/week</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-section-label">Training Style</div>
+      <div class="input-group">
+        <label for="style">Preferred approach</label>
+        <select id="style">
+          <option value="balanced" selected>Balanced — mix of easy, tempo, and long runs</option>
+          <option value="polarized">Polarized — 80% easy, 20% hard (Fitzgerald/80-20)</option>
+          <option value="galloway">Run-Walk — Galloway intervals for long efforts</option>
+          <option value="conservative">Conservative — lower mileage, injury prevention focus</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-section-label">Plan Start Date</div>
+      <div class="input-group">
+        <label for="startDate">First Monday of your training block</label>
+        <input type="date" id="startDate">
+        <div class="time-hint" id="startDateHint">Dates will appear on each week and day.</div>
+      </div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn">Generate Plan</button>
+
+    <div class="method-card" id="methodCard">
+      <strong id="methodTitle"></strong>
+      <span id="methodDesc"></span>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT: Plan output -->
+  <main class="panel-right" id="panelRight">
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">&#127939;</div>
+      <h2>Your plan awaits</h2>
+      <p>Select a distance, set your goal time, and generate your personalized training plan.</p>
+    </div>
+
+    <div class="plan-header" id="planHeader">
+      <div class="plan-title" id="planTitle"></div>
+      <div class="plan-subtitle" id="planSubtitle"></div>
+    </div>
+
+    <div class="pace-grid" id="paceGrid"></div>
+
+    <div class="chart-wrap" id="chartWrap">
+      <div class="chart-title">Weekly Mileage Ramp</div>
+      <div class="chart-inner">
+        <canvas id="mileageChart"></canvas>
+      </div>
+    </div>
+
+    <div class="weeks-wrap" id="weeksWrap"></div>
+
+    <div class="plan-footer" id="planFooter">
+      Plan generated based on your inputs. Adjust weekly mileage ±10% based on fatigue and life.
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+// ── DISTANCES CONFIG ────────────────────────────────────────────────────────
+const DISTANCES = {
+  '5k':       { label: '5K',              miles: 3.10694, weeks: 8,  peakMpw: 25, taperWeeks: 1 },
+  '10k':      { label: '10K',             miles: 6.21371, weeks: 10, peakMpw: 30, taperWeeks: 1 },
+  'half':     { label: 'Half Marathon',   miles: 13.1094, weeks: 12, peakMpw: 40, taperWeeks: 2 },
+  'marathon': { label: 'Full Marathon',   miles: 26.2188, weeks: 16, peakMpw: 50, taperWeeks: 3 },
+  '50k':      { label: '50K Ultra',       miles: 31.0686, weeks: 20, peakMpw: 55, taperWeeks: 3 },
+};
+
+const METHODS = {
+  balanced: {
+    title: 'Balanced Method',
+    desc: 'Rooted in Hal Higdon\'s approach: easy runs build aerobic base, one weekly tempo sharpens lactate threshold, and a progressive long run builds race-specific endurance. Ideal for most runners.',
+  },
+  polarized: {
+    title: '80/20 Polarized (Matt Fitzgerald)',
+    desc: 'Roughly 80% of runs at conversational easy pace, 20% at threshold or faster. Research shows polarized training produces better adaptation than moderate-intensity work for most athletes.',
+  },
+  galloway: {
+    title: 'Run-Walk Method (Jeff Galloway)',
+    desc: 'Strategic walk breaks on long runs reduce injury risk and recovery time. Galloway\'s research shows run-walkers often finish with similar or better times while enjoying the experience more.',
+  },
+  conservative: {
+    title: 'Conservative / Injury Prevention',
+    desc: 'Lower weekly mileage increases of no more than 10% per week, extra rest days, and no speedwork until week 4. Best for runners returning from injury or with limited time to train.',
+  },
+};
+
+// ── STATE ───────────────────────────────────────────────────────────────────
+let selectedDist = '5k';
+
+// ── HELPERS ─────────────────────────────────────────────────────────────────
+function totalSeconds(h, m, s) {
+  return h * 3600 + m * 60 + s;
+}
+
+function formatPace(secsPerMile) {
+  if (!isFinite(secsPerMile) || secsPerMile <= 0) return '--:--';
+  const m = Math.floor(secsPerMile / 60);
+  const s = Math.round(secsPerMile % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function formatTime(totalSecs) {
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  const s = Math.round(totalSecs % 60);
+  if (h > 0) return h + 'h ' + m + 'm ' + (s > 0 ? s + 's' : '');
+  return m + 'm ' + (s > 0 ? String(s).padStart(2,'0') + 's' : '');
+}
+
+function calcPaces(goalSecs, distMiles, fitness, style) {
+  const goalPacePerMile = goalSecs / distMiles;
+
+  // Adjustments per fitness level (faster runners have less spread between paces)
+  const fitnessAdj = { beginner: 1.0, novice: 0.95, intermediate: 0.9, advanced: 0.85 };
+  const adj = fitnessAdj[fitness] || 1.0;
+
+  let easyOffset, tempoOffset, longOffset;
+  if (style === 'polarized') {
+    easyOffset  = 90 * adj;
+    tempoOffset = -10;
+    longOffset  = 75 * adj;
+  } else if (style === 'galloway') {
+    easyOffset  = 75 * adj;
+    tempoOffset = 5;
+    longOffset  = 90 * adj;
+  } else if (style === 'conservative') {
+    easyOffset  = 105 * adj;
+    tempoOffset = 10;
+    longOffset  = 100 * adj;
+  } else {
+    // balanced
+    easyOffset  = 90 * adj;
+    tempoOffset = -15;
+    longOffset  = 75 * adj;
+  }
+
+  return {
+    race:     goalPacePerMile,
+    easy:     goalPacePerMile + easyOffset,
+    tempo:    goalPacePerMile + tempoOffset,
+    long:     goalPacePerMile + longOffset,
+    interval: goalPacePerMile - 20,
+  };
+}
+
+// ── TRAINING PLAN GENERATOR ─────────────────────────────────────────────────
+function generateWeeks(dist, fitness, style, paces) {
+  const cfg    = DISTANCES[dist];
+  const total  = cfg.weeks;
+  const peak   = cfg.peakMpw;
+  const taper  = cfg.taperWeeks;
+  const build  = total - taper - 1; // weeks building up (last build week = peak)
+  const daysPerWeek = (fitness === 'beginner' || style === 'conservative') ? 4 : (dist === '50k' ? 6 : 5);
+
+  // Phase labels
+  function getPhase(w) {
+    if (w <= Math.floor(build * 0.4)) return 'Base Building';
+    if (w <= build) return 'Build Phase';
+    if (w < total) return 'Taper';
+    return 'Race Week';
+  }
+
+  // Mileage curve: gradual ramp, peak, taper
+  function weekMiles(w) {
+    const baseMpw = (fitness === 'beginner') ? peak * 0.45 : (fitness === 'novice') ? peak * 0.55 : peak * 0.65;
+    if (w <= build) {
+      const pct = w / build;
+      // 10% rule with a slight curve
+      const raw = baseMpw + (peak - baseMpw) * Math.pow(pct, 0.85);
+      // Recovery weeks every 4th week
+      if (w % 4 === 0 && w < build) return Math.round(raw * 0.8);
+      return Math.round(raw);
+    }
+    // Taper
+    const taperIdx = w - build;
+    const taperPct = [0.75, 0.55, 0.40][taperIdx - 1] || 0.35;
+    if (w === total) return Math.round(peak * 0.30); // race week
+    return Math.round(peak * taperPct);
+  }
+
+  // Day templates per style/distance
+  function getDayPlan(weekNum, dayIndex, totalMiles, isTaper, isRaceWeek) {
+    // dayIndex 0=Mon…6=Sun
+    const isLong      = dayIndex === 6;
+    const isRest      = dayIndex === 3; // Wed always rest for beginners
+    const isInterval  = (style !== 'conservative' && style !== 'galloway') && dayIndex === 1 && weekNum > 3 && !isTaper;
+    const isTempo     = dayIndex === 2 && weekNum > 2 && !isTaper;
+    const isCross     = (daysPerWeek >= 5) && dayIndex === 4;
+
+    if (isRaceWeek) {
+      if (dayIndex === 0) return mkDay('easy',  3,    'Easy shakeout', 'Light 3 miles, nothing heroic. Keep it easy.', paces.easy);
+      if (dayIndex === 1) return mkDay('easy',  2,    'Tune-up run',   '2 miles easy + 4x20s strides.', paces.easy);
+      if (dayIndex === 2) return mkDay('rest',  0,    'Rest / packet pickup', 'Stay off your feet. Hydrate well.', 0);
+      if (dayIndex === 3) return mkDay('easy',  2,    'Pre-race shakeout', '2 miles very easy, 4 strides.', paces.easy);
+      if (dayIndex === 4) return mkDay('rest',  0,    'Rest', 'Rest, early bedtime.', 0);
+      if (dayIndex === 5) return mkDay('rest',  0,    'Rest', 'Light walk only. No running.', 0);
+      if (dayIndex === 6) return mkDay('long',  cfg.miles, 'RACE DAY', 'All your training comes together today. Run your race.', paces.race);
+    }
+
+    if (isTaper) {
+      if (isLong) {
+        const lm = Math.max(4, Math.round(totalMiles * 0.45));
+        return mkDay('long', lm, 'Taper long run', 'Keep it easy. This run reminds your legs, not builds them.', paces.long);
+      }
+      if (dayIndex === 0 || dayIndex === 2) {
+        return mkDay('easy', Math.max(3, Math.round(totalMiles * 0.2)), 'Easy run', 'Stay relaxed, trust your fitness.', paces.easy);
+      }
+      if (dayIndex === 1) return mkDay('tempo', Math.round(totalMiles * 0.15), 'Short tempo', '10 min warm-up, 10 min at goal pace, 10 min cool-down.', paces.tempo);
+      return mkDay('rest', 0, 'Rest / cross-train', '', 0);
+    }
+
+    // Normal weeks
+    const longMiles = Math.round(totalMiles * (dist === '50k' ? 0.32 : 0.28));
+
+    if (isLong)     return mkDay('long',     longMiles, 'Long Run', longRunDesc(longMiles, style, paces), paces.long);
+    if (isRest)     return mkDay('rest',     0,         'Rest Day',  'Full rest or gentle walk only.', 0);
+    if (isInterval) {
+      const iMiles = Math.round(totalMiles * 0.12);
+      return mkDay('interval', iMiles, 'Interval Workout', intervalDesc(weekNum, paces), paces.interval);
+    }
+    if (isTempo) {
+      const tMiles = Math.round(totalMiles * 0.15);
+      return mkDay('tempo', tMiles, 'Tempo Run', tempoDesc(tMiles, paces), paces.tempo);
+    }
+    if (isCross)    return mkDay('cross',    0,         'Cross-Training', 'Bike, swim, yoga, or strength. 30\u201345 min.', 0);
+
+    // Default easy run
+    const eMiles = Math.max(2, Math.round(totalMiles * (dayIndex === 0 ? 0.15 : 0.12)));
+    return mkDay('easy', eMiles, 'Easy Run', easyDesc(eMiles, paces, style), paces.easy);
+  }
+
+  function mkDay(type, miles, title, detail, pace) {
+    return { type, miles, title, detail, pace };
+  }
+
+  function longRunDesc(mi, style, p) {
+    if (style === 'galloway') return mi + ' mi with run/walk intervals (run 4 min, walk 1 min). Stay conversational throughout.';
+    return mi + ' mi easy. Aim for ' + formatPace(p.long) + '/mi. This is your most important run of the week.';
+  }
+  function tempoDesc(mi, p) {
+    const warmup = Math.max(1, Math.round(mi * 0.25));
+    const tempo  = Math.round(mi * 0.5);
+    return 'Warm up ' + warmup + ' mi easy, ' + tempo + ' mi at ' + formatPace(p.tempo) + '/mi, cool down ' + warmup + ' mi easy.';
+  }
+  function intervalDesc(weekNum, p) {
+    const reps = Math.min(8, 4 + Math.floor(weekNum / 3));
+    return reps + 'x400m at ' + formatPace(p.interval) + '/mi (mile pace) with 90s rest. Warm up and cool down 1 mi each.';
+  }
+  function easyDesc(mi, p, style) {
+    if (style === 'polarized') return mi + ' mi fully conversational. If you can\u2019t speak in sentences, slow down.';
+    return mi + ' mi at ' + formatPace(p.easy) + '/mi. Effort: easy, controlled breathing.';
+  }
+
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+  return Array.from({ length: total }, (_, i) => {
+    const w        = i + 1;
+    const miles    = weekMiles(w);
+    const isTaper  = w > build && w < total;
+    const isRaceWk = w === total;
+    const phase    = getPhase(w);
+
+    const days = DAYS.map((name, di) => ({
+      name,
+      ...getDayPlan(w, di, miles, isTaper, isRaceWk),
+    }));
+
+    return { week: w, miles, phase, isTaper, isRaceWk, days };
+  });
+}
+
+// ── CHART ───────────────────────────────────────────────────────────────────
+function drawChart(weeks, maxMiles) {
+  const canvas = document.getElementById('mileageChart');
+  const wrap   = canvas.parentElement;
+  const dpr    = window.devicePixelRatio || 1;
+  canvas.width  = wrap.clientWidth  * dpr;
+  canvas.height = wrap.clientHeight * dpr;
+  canvas.style.width  = wrap.clientWidth  + 'px';
+  canvas.style.height = wrap.clientHeight + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const W = wrap.clientWidth;
+  const H = wrap.clientHeight;
+  const pad = { top: 10, right: 10, bottom: 24, left: 32 };
+  const iW  = W - pad.left - pad.right;
+  const iH  = H - pad.top  - pad.bottom;
+
+  const data  = weeks.map(wk => wk.miles);
+  const n     = data.length;
+  const step  = iW / (n - 1);
+
+  // Fill gradient
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + iH);
+  grad.addColorStop(0,   'rgba(245,166,35,0.45)');
+  grad.addColorStop(1,   'rgba(245,166,35,0.02)');
+
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = pad.left + i * step;
+    const y = pad.top  + iH - (v / maxMiles) * iH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(pad.left + (n - 1) * step, pad.top + iH);
+  ctx.lineTo(pad.left, pad.top + iH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = pad.left + i * step;
+    const y = pad.top  + iH - (v / maxMiles) * iH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#F5A623';
+  ctx.lineWidth   = 2.5;
+  ctx.lineJoin    = 'round';
+  ctx.stroke();
+
+  // Dots
+  data.forEach((v, i) => {
+    const x = pad.left + i * step;
+    const y = pad.top  + iH - (v / maxMiles) * iH;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#F5A623';
+    ctx.fill();
+  });
+
+  // X labels (every 2 or 4 weeks)
+  ctx.fillStyle   = '#7A8BA0';
+  ctx.font        = '10px Inter, sans-serif';
+  ctx.textAlign   = 'center';
+  const step2 = n <= 12 ? 2 : 4;
+  data.forEach((_, i) => {
+    if ((i + 1) % step2 === 0 || i === 0 || i === n - 1) {
+      const x = pad.left + i * step;
+      ctx.fillText('W' + (i + 1), x, H - 4);
+    }
+  });
+
+  // Y label
+  ctx.textAlign = 'right';
+  ctx.fillText(maxMiles + ' mi', pad.left - 4, pad.top + 10);
+}
+
+// ── RENDER PLAN ──────────────────────────────────────────────────────────────
+// ── DATE HELPERS ─────────────────────────────────────────────────────────────
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Parse a yyyy-mm-dd string as local date (avoids UTC-offset surprises)
+function parseLocalDate(str) {
+  if (!str) return null;
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+// Add N days to a Date, returns new Date
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+// Format: "Jun 25" or "Jun 25 \u2013 Jul 1"
+function fmtDate(date) {
+  return MONTH_SHORT[date.getMonth()] + ' ' + date.getDate();
+}
+
+// Given week index (0-based) and start date, return {label, raceDate}
+function weekDateRange(weekIdx, startDate) {
+  const mon = addDays(startDate, weekIdx * 7);
+  const sun = addDays(mon, 6);
+  return {
+    label: fmtDate(mon) + ' \u2013 ' + fmtDate(sun),
+    monday: mon,
+  };
+}
+
+// Given week index and day index (0=Mon), return formatted date string
+function dayDate(weekIdx, dayIdx, startDate) {
+  return fmtDate(addDays(startDate, weekIdx * 7 + dayIdx));
+}
+
+// ── LOCALSTORAGE ─────────────────────────────────────────────────────────────
+const LS_KEY = 'appaday049_startDate';
+
+function saveStartDate(val) {
+  try { localStorage.setItem(LS_KEY, val); } catch(e) {}
+}
+
+function loadStartDate() {
+  try { return localStorage.getItem(LS_KEY) || ''; } catch(e) { return ''; }
+}
+
+function updateStartDateHint() {
+  const val = document.getElementById('startDate').value;
+  const hint = document.getElementById('startDateHint');
+  if (val) {
+    const d = parseLocalDate(val);
+    // Warn if not a Monday
+    const dayOfWeek = d.getDay(); // 0=Sun, 1=Mon
+    if (dayOfWeek !== 1) {
+      const daysUntilMon = (8 - dayOfWeek) % 7 || 7;
+      const nextMon = addDays(d, daysUntilMon);
+      hint.textContent = 'Tip: plans start on Monday. Next Monday is ' + fmtDate(nextMon) + '.';
+    } else {
+      hint.textContent = 'Plan runs ' + fmtDate(d) + ' through race day.';
+    }
+  } else {
+    hint.textContent = 'Dates will appear on each week and day.';
+  }
+}
+
+function renderPlan() {
+  const dist    = selectedDist;
+  const cfg     = DISTANCES[dist];
+  const h       = parseInt(document.getElementById('hrs').value)  || 0;
+  const m       = parseInt(document.getElementById('mins').value) || 0;
+  const s       = parseInt(document.getElementById('secs').value) || 0;
+  const fitness = document.getElementById('fitness').value;
+  const style   = document.getElementById('style').value;
+  const startDateStr = document.getElementById('startDate').value;
+  const startDate    = parseLocalDate(startDateStr); // null if not set
+  saveStartDate(startDateStr);
+
+  const goalSecs = totalSeconds(h, m, s);
+  if (goalSecs < 60) {
+    alert('Please enter a valid goal time.');
+    return;
+  }
+
+  const paces = calcPaces(goalSecs, cfg.miles, fitness, style);
+  const weeks = generateWeeks(dist, fitness, style, paces);
+  const maxMpw = Math.max(...weeks.map(w => w.miles));
+
+  // Hide empty state
+  document.getElementById('emptyState').style.display = 'none';
+
+  // Plan header
+  const ph = document.getElementById('planHeader');
+  ph.classList.add('visible');
+  document.getElementById('planTitle').textContent =
+    cfg.label + ' Training Plan';
+  document.getElementById('planSubtitle').textContent =
+    cfg.weeks + '-week plan \u00b7 Goal: ' + formatTime(goalSecs) + ' \u00b7 ' +
+    METHODS[style].title +
+    (startDate ? ' \u00b7 Starts ' + fmtDate(startDate) : '');
+
+  // Method card
+  const mc = document.getElementById('methodCard');
+  mc.classList.add('visible');
+  document.getElementById('methodTitle').textContent = METHODS[style].title;
+  document.getElementById('methodDesc').textContent  = METHODS[style].desc;
+
+  // Pace grid
+  const pg = document.getElementById('paceGrid');
+  pg.innerHTML = '';
+  const paceItems = [
+    { label: 'Goal Pace',     value: formatPace(paces.race),     unit: 'min/mile' },
+    { label: 'Easy Pace',     value: formatPace(paces.easy),     unit: 'min/mile' },
+    { label: 'Tempo Pace',    value: formatPace(paces.tempo),    unit: 'min/mile' },
+    { label: 'Long Run Pace', value: formatPace(paces.long),     unit: 'min/mile' },
+    { label: 'Interval Pace', value: formatPace(paces.interval), unit: 'min/mile' },
+    { label: 'Peak Mileage',  value: maxMpw,                     unit: 'miles/week' },
+  ];
+  paceItems.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pace-card';
+    card.innerHTML =
+      '<div class="pace-card-label">' + p.label + '</div>' +
+      '<div class="pace-card-value">' + p.value + '</div>' +
+      '<div class="pace-card-unit">' + p.unit + '</div>';
+    pg.appendChild(card);
+  });
+
+  // Chart
+  const cw = document.getElementById('chartWrap');
+  cw.classList.add('visible');
+  requestAnimationFrame(() => drawChart(weeks, maxMpw));
+
+  // Week cards
+  const ww = document.getElementById('weeksWrap');
+  ww.innerHTML = '';
+  ww.classList.add('visible');
+
+  weeks.forEach((wk, idx) => {
+    const card = document.createElement('div');
+    card.className = 'week-card';
+    if (idx === 0) { card.classList.add('open'); }
+
+    const taperBadge = (wk.isTaper || wk.isRaceWk)
+      ? '<span class="taper-badge">' + (wk.isRaceWk ? 'Race Week' : 'Taper') + '</span>'
+      : '';
+
+    const dateRange = startDate ? weekDateRange(idx, startDate) : null;
+    const weekDateLabel = dateRange ? '<div class="week-dates">' + dateRange.label + '</div>' : '';
+
+    const barPct = Math.round((wk.miles / maxMpw) * 100);
+
+    card.innerHTML =
+      '<div class="week-header">' +
+        '<div class="week-left">' +
+          '<div class="week-num">Week ' + wk.week + '</div>' +
+          '<div class="week-phase">' + wk.phase + taperBadge + weekDateLabel + '</div>' +
+        '</div>' +
+        '<div class="week-right">' +
+          '<div class="week-miles">' + wk.miles + ' <span>mi</span></div>' +
+          '<div class="week-chevron">&#9660;</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="week-bar-wrap">' +
+        '<div class="week-bar-track"><div class="week-bar-fill" style="width:' + barPct + '%"></div></div>' +
+      '</div>' +
+      '<div class="week-days">' +
+        wk.days.map((d, di) => {
+          const isRest = d.type === 'rest';
+          const dateLbl = startDate ? '<div class="day-date">' + dayDate(idx, di, startDate) + '</div>' : '';
+          return '<div class="day-row">' +
+            '<div class="day-name">' + d.name + (dateLbl ? '<br>' + dateLbl : '') + '</div>' +
+            '<div class="day-dot ' + d.type + '"></div>' +
+            '<div class="day-desc">' +
+              '<div class="day-title">' + d.title + '</div>' +
+              (d.detail ? '<div class="day-detail">' + d.detail + '</div>' : '') +
+            '</div>' +
+            '<div class="day-miles ' + (isRest ? 'rest-miles' : '') + '">' +
+              (isRest ? 'Rest' : (d.miles > 0 ? d.miles + ' mi' : '')) +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+
+    card.querySelector('.week-header').addEventListener('click', () => {
+      card.classList.toggle('open');
+    });
+
+    ww.appendChild(card);
+  });
+
+  document.getElementById('planFooter').classList.add('visible');
+
+  // Scroll right panel to top on mobile
+  if (window.innerWidth <= 800) {
+    document.getElementById('panelRight').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+// ── EVENT LISTENERS ──────────────────────────────────────────────────────────
+document.querySelectorAll('.dist-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dist-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedDist = btn.dataset.dist;
+    updateGoalHint();
+    // Set sensible default times per distance
+    const defaults = {
+      '5k':       { h:0, m:25, s:0 },
+      '10k':      { h:0, m:55, s:0 },
+      'half':     { h:2, m:0,  s:0 },
+      'marathon': { h:4, m:0,  s:0 },
+      '50k':      { h:5, m:30, s:0 },
+    };
+    const d = defaults[selectedDist];
+    document.getElementById('hrs').value  = d.h;
+    document.getElementById('mins').value = d.m;
+    document.getElementById('secs').value = d.s;
+    updateGoalHint();
+  });
+});
+
+function updateGoalHint() {
+  const h = parseInt(document.getElementById('hrs').value)  || 0;
+  const m = parseInt(document.getElementById('mins').value) || 0;
+  const s = parseInt(document.getElementById('secs').value) || 0;
+  const cfg = DISTANCES[selectedDist];
+  const totalSecs = h*3600 + m*60 + s;
+  const hint = document.getElementById('goalHint');
+  if (totalSecs > 0) {
+    const pace = totalSecs / cfg.miles;
+    hint.textContent = 'Goal: ' + formatTime(totalSecs) + ' \u2014 ' + formatPace(pace) + '/mile avg';
+  } else {
+    hint.textContent = 'Enter your goal finish time above';
+  }
+}
+
+['hrs','mins','secs'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateGoalHint);
+});
+
+document.getElementById('generateBtn').addEventListener('click', renderPlan);
+
+// Start date: load saved value and wire listener
+(function() {
+  const saved = loadStartDate();
+  if (saved) document.getElementById('startDate').value = saved;
+  updateStartDateHint();
+})();
+document.getElementById('startDate').addEventListener('change', () => {
+  saveStartDate(document.getElementById('startDate').value);
+  updateStartDateHint();
+});
+
+// Init hint
+updateGoalHint();
+
+// Redraw chart on resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    const cw = document.getElementById('chartWrap');
+    if (cw.classList.contains('visible')) {
+      const ww = document.getElementById('weeksWrap');
+      if (ww.classList.contains('visible')) {
+        const weeks = Array.from(ww.querySelectorAll('.week-card')).map(c => {
+          const barFill = c.querySelector('.week-bar-fill');
+          const miles = parseInt(c.querySelector('.week-miles').textContent);
+          return { miles };
+        });
+      }
+    }
+  }, 200);
+});
+</script>
+</body>
+</html>
